@@ -1,0 +1,17 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: lm-mysql-db
+    restart: always
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: legalmatch_db
+      MYSQL_USER: legalmatch_admin_user
+      MYSQL_PASSWORD: lagalmatch
+    volumes:
+      - db_data:/var/lib/mysql
+
+volumes:
+  db_data:
