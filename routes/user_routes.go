@@ -12,5 +12,6 @@ func RegisterUserRoutes(r *gin.RouterGroup) {
 	{
 		userGroup.POST("/register", controllers.CreateUser)
 		userGroup.GET("/myinfo", middlewares.JwtAuth(), controllers.GetMyInfo)
+		userGroup.GET("/check-nickname", controllers.CheckNickName)
 	}
 }

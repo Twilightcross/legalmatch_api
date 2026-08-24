@@ -1,10 +1,7 @@
 package auth
 
 import (
-	"errors"
-	"fmt"
 	"legalmatch-api/config"
-	"os"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -27,21 +24,5 @@ func GenerateAccessToken(userID uint, role string) (string, error) {
 		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	fmt.Println("DEBUG JWT_SECRET:", os.Getenv("JWT_SECRET"))
 	return token.SignedString(config.GetJWTSecret())
-}
-
-func ValidateToken(tokenStr string) (*JWTClaims, error) {
-	token, err := jwt.ParseWithClaims(tokenStr, &JWTClaims{}, func(t *jwt.Token) (interface{}, error) {
-		return config.GetJWTSecret(), nil
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	claims, ok := token.Claims.(*JWTClaims)
-	if !ok || !token.Valid {
-		return nil, errors.New("invalid token")
-	}
-	return claims, nil
 }

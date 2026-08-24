@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func CreateUser(c *gin.Context) {
@@ -16,10 +17,16 @@ func CreateUser(c *gin.Context) {
 		return
 	}
 
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "비밀번호 처리에 실패했습니다"})
+		return
+	}
+
 	user := models.User{
 		Name:     req.Name,
 		Email:    req.Email,
-		Password: req.Password,
+		Password: string(hashedPassword),
 		Role:     req.Role,
 	}
 
@@ -48,5 +55,23 @@ func GetMyInfo(c *gin.Context) {
 		"name":  user.Name,
 		"email": user.Email,
 		"role":  user.Role,
+	})
+}
+
+func CheckNickName(c *gin.Context) {
+	nickname := c.Query("nickname")
+	if nickname == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "nickname is required"})
+		return
+	}
+
+	var count int64
+	if err := config.DB.Model(&models.User{}).Where("name = ?", nickname).Count(&count).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "db_error"})
+		return
+	}
+	available := count == 0
+	c.JSON(http.StatusOK, gin.H{
+		"available": available,
 	})
 }
