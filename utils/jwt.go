@@ -9,8 +9,8 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-func ParseAccessToken(tokenStr string) (*auth.TokenClaims, error) {
-	token, err := jwt.ParseWithClaims(tokenStr, &auth.TokenClaims{}, func(t *jwt.Token) (interface{}, error) {
+func ParseAccessToken(tokenStr string) (*auth.JWTClaims, error) {
+	token, err := jwt.ParseWithClaims(tokenStr, &auth.JWTClaims{}, func(t *jwt.Token) (interface{}, error) {
 		return config.GetJWTSecret(), nil
 	})
 	if err != nil {
@@ -20,11 +20,9 @@ func ParseAccessToken(tokenStr string) (*auth.TokenClaims, error) {
 		return nil, err
 	}
 
-	cliams, ok := token.Claims.(*auth.TokenClaims)
+	claims, ok := token.Claims.(*auth.JWTClaims)
 	if !ok || !token.Valid {
-
-		fmt.Println("❌ JWT invalid claims or invalid token")
 		return nil, errors.New("invalid token")
 	}
-	return cliams, nil
+	return claims, nil
 }
